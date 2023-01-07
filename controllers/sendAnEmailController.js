@@ -4,7 +4,7 @@ import Intro from "../Templates/intro.js";
 import orderShipped from "../Templates/orderShipped.js";
 
 const sendAnCustomEmail = asyncHandler(async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, subject } = req.body;
 
   let transporter = nodemailer.createTransport({
     host: "smtp.zoho.in",
@@ -19,7 +19,7 @@ const sendAnCustomEmail = asyncHandler(async (req, res) => {
     {
       from: '"Aryan Agarwal" <aryan@thehonestcareerco.in>', // sender address
       to: email, // list of receivers
-      subject: `Hey ${name}, `, // Subject line
+      subject: subject, // Subject line
       text: "Hello", // plain text body
       html: `${Intro(name, email)}`, // html body
     },
