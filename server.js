@@ -41,7 +41,7 @@ app.post("/webhook", async (req, res) => {
 
   // Check the Incoming webhook message
   console.log(JSON.stringify(req.body, null, 2));
-  await customerRef.doc("vpeluso").set(JSON.stringify(req.body));
+  await customerRef.doc("vpeluso").set(JSON.stringify(req.body, null, 2));
 
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
