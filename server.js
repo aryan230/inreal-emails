@@ -7,14 +7,27 @@ import path from "path";
 import nodemailer from "nodemailer";
 import admin from "firebase-admin";
 import { getDatabase } from "firebase-admin/database";
-import File from "./whatsapp-5ea34-firebase-adminsdk-516bw-aeee8df57a.json" assert { type: "json" };
 dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
 const token = process.env.WHATSAPP_TOKEN;
 // app.use(cors(corsOptions));
-var serviceAccount = File;
+var serviceAccount = {
+  type: "service_account",
+  project_id: "whatsapp-5ea34",
+  private_key_id: "aeee8df57af33c2cb2d81c95678041048f98707a",
+  private_key:
+    "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC8eC0wqy32wYoJ\n9Cc/CfSCNgqcx4pLUbAuhMtWgJw88eUPa49IL7Zv0+/TfF/l/g2IoyN4KYOF7kLX\npF0UdyXGT1Smy7nBs5CaOdobdnc//jWkuA8ic3S5EHw+w1Hq7cWMDBDOjUPpZ1lM\nppJB25metJerL+UWRPdf6L2zfeCpdw95D0/wGYavUTnc5Ts7VJvIaPTZg39vN1Ge\nMMizjI4clGb84KcwKTXn4gYiy1TUZxUOsyD65VP1tugyzuYHWroaZ55JPHKU/et0\nyBxhTOhz/FTtpK44qPj2l/Nr86LooRVxIWncqA/EnITsCDxS/ayhiabCHKi743o4\nnzuwQuBzAgMBAAECggEAEQ8fqAQWiPtDr1r2InKYOyEBHOfC0MZ4F/3VGeNSQQH0\nJc0qjvIipUSdtJrRY1P3jaKWl03KpdjHHBW4hx2xwZ10oBRYn/vM3ujVoR679ILi\nACLY29lve0DOvi+Xvpf/BYoiC1AmEX5VSubY3jUuVnsqL0iKh9V+PqQmZ5TBPRVt\nkICcMo77uTVHRaE+DWZw0Fd/ooxJIZepgNrmeaaVFzGfS9btXCsb9A1GzBUKCI2C\nCxrmVj5swLWX5Ucy7H4/0nTNbfNb+nTgfJLRn65PnCa39T/1MtLH68Ddeg17+kbF\nkS0YC8jtsa1VMhQM6sxai+RE0+swTG5fHRvoTlgXYQKBgQD+6OPDhroCauKJcqyq\n63gIZWfCe11CENtmCJMjDA59NgyLWbgtQ63531fv6n7RyOjbkpqO2w3dg/9WhcSb\nPzIRvj+JaizUWdLFvdlzQPoWKcn3dG2G/TPYgZgJ+8sr9kBt9pldef6Ed8OcC7MG\n3lxzKpVCbyjIa5SMCW6d1OWXzwKBgQC9RonxbpZP9ErDRygBcEshrkE9rC2tJbRX\nn8h8i9O9yss/AVB5GYQIdIxhbMiJXP2uUviSw/kq32dyInaEn7birRb/LLUUknqZ\ne2hD3HxIFcqdLDqsNGGAf6sZ0bwkcXtq4+OokkOh+Vb5INcQkF4EHRG07lAMLSaO\nZqTnTBHyHQKBgGm50m4QfSnvhxIXHAKwM1LYLFb/r8htEXKab9yDbacFOeK6TaeI\ngKo4tlJt4jfEqsAXaD+EH5YW31rVlJwHdA7j55ppDTruHnuhqIUjGBcFMh2OjrcE\nYfKUnajWZIhRVJvHQgkBRk1PFzSrrY9VvuaNbObnD/VAmZYTe2u/F5MFAoGAYVwa\ncr0uxnvjxSUh9/N6Qh3vYzjg2fLOHFCNgTsvtK3O9F7JtTEh0HObDjY1xSq3Nudp\nA52Y2qvF+1is3DWHjnv4m1O05ZsfQznOfTG6IB5NdaGdoJzlFoMVUReojpptIKOO\npFRwQ64NReLVnaiVI8qMJCR9unWzIoa8BloD1SUCgYBiula0l8w0tLV4FeJuVOAO\niffivJ3XBsLLddCTOT4htsvZiJ4zIueMdyndW5DXlADHK864vl+nK8cAjnbAEi2s\negdJMrLZ6LMWZbSxV36YmVJTyd6+qqzJUb//7C1t2cRtziC1kR+qtzBuhFE2pCsK\nqnyA6yYOl7/rae333asVeg==\n-----END PRIVATE KEY-----\n",
+  client_email:
+    "firebase-adminsdk-516bw@whatsapp-5ea34.iam.gserviceaccount.com",
+  client_id: "107822561673930150832",
+  auth_uri: "https://accounts.google.com/o/oauth2/auth",
+  token_uri: "https://oauth2.googleapis.com/token",
+  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+  client_x509_cert_url:
+    "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-516bw%40whatsapp-5ea34.iam.gserviceaccount.com",
+};
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
