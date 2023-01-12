@@ -7,12 +7,12 @@ const sendAnCustomEmail = asyncHandler(async (req, res) => {
   const { name, email } = req.body;
 
   let transporter = nodemailer.createTransport({
-    host: "smtp.zoho.in",
+    host: "smtpout.secureserver.net",
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
       user: "aryan@thehonestcareerco.in", // generated ethereal user
-      pass: "Aryanankita", // generated ethereal password
+      pass: "Aryan@2306", // generated ethereal password
     },
   });
   let info = await transporter.sendMail(
