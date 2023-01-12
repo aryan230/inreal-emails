@@ -41,7 +41,11 @@ app.post("/webhook", async (req, res) => {
 
   // Check the Incoming webhook message
   console.log(JSON.stringify(req.body, null, 2));
-  await customerRef.doc("vpeluso").set(JSON.stringify(req.body, null, 2));
+  await customerRef
+    .doc(req.body.entry[0].changes[0].value.metadata.phone_number_id)
+    .set({
+      number: req.body.entry[0].changes[0].value.metadata.phone_number_id,
+    });
 
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
@@ -68,7 +72,7 @@ app.post("/webhook", async (req, res) => {
           messaging_product: "whatsapp",
           to: from,
           text: {
-            body: "Thanks for reaching out us. An agent will be connected with you in sometime.",
+            body: "Thanks for reaching out to us. An agent will be connected with you in sometime.",
           },
         },
         headers: { "Content-Type": "application/json" },
