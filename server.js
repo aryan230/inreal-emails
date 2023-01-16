@@ -105,7 +105,7 @@ app.post("/webhook", async (req, res) => {
                 timestamp,
               },
             ];
-            await customerRef.doc(element.id).set({
+            await customerRef.doc(phone_number_id).set({
               data: chats,
             });
           }
