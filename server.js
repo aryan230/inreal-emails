@@ -34,6 +34,25 @@ admin.initializeApp({
 });
 const db = admin.firestore();
 
+app.get("/firebase", async (req, res) => {
+  let customerRef = db.collection("messages");
+  customerRef.get().then((snap) => {
+    snap.forEach(async (element) => {
+      if (element.id === "103390155979999") {
+        console.log(element.data());
+        let chats = element.data().data;
+        await chats.push({
+          name: "ayaan",
+        });
+
+        await customerRef.doc(element.id).set({
+          data: chats,
+        });
+      }
+    });
+  });
+});
+
 app.post("/webhook", async (req, res) => {
   // Parse the request body from the POST
   let body = req.body;
@@ -42,11 +61,6 @@ app.post("/webhook", async (req, res) => {
 
   // Check the Incoming webhook message
   console.log(JSON.stringify(req.body, null, 2));
-  await customerRef
-    .doc(req.body.entry[0].changes[0].value.metadata.phone_number_id)
-    .set({
-      number: req.body.entry[0].changes[0].value.metadata.phone_number_id,
-    });
 
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
@@ -61,23 +75,67 @@ app.post("/webhook", async (req, res) => {
         req.body.entry[0].changes[0].value.metadata.phone_number_id;
       let from = req.body.entry[0].changes[0].value.messages[0].from; // extract the phone number from the webhook payload
       let msg_body = req.body.entry[0].changes[0].value.messages[0].text.body;
-      // extract the message text from the webhook payload
-      axios({
-        method: "POST", // Required, HTTP method, a string, e.g. POST, GET
-        url:
-          "https://graph.facebook.com/v12.0/" +
-          phone_number_id +
-          "/messages?access_token=" +
-          token,
-        data: {
-          messaging_product: "whatsapp",
-          to: from,
-          text: {
-            body: "Thanks for reaching out to us. An agent will be connected with you in sometime.",
-          },
-        },
-        headers: { "Content-Type": "application/json" },
+      let messageID = req.body.entry[0].changes[0].value.messages[0].id;
+      let name = req.body.entry[0].changes[0].value.contacts[0].profile.name;
+      let timestamp = req.body.entry[0].changes[0].value.messages[0].timestamp;
+      //Save message in firebase storage
+      customerRef.get().then((snap) => {
+        snap.forEach(async (element) => {
+          if (
+            element.id ===
+            req.body.entry[0].changes[0].value.metadata.phone_number_id
+          ) {
+            console.log(element.data());
+            let chats = element.data().data;
+            await chats.push({
+              number: from,
+              name,
+              messageID,
+              text: msg_body,
+              timestamp,
+            });
+
+            await customerRef.doc(element.id).set({
+              data: chats,
+            });
+          } else {
+            let chats = [
+              {
+                number: from,
+                name,
+                messageID,
+                text: msg_body,
+                timestamp,
+              },
+            ];
+            await customerRef.doc(element.id).set({
+              data: chats,
+            });
+          }
+        });
       });
+      // await customerRef
+      //   .doc(req.body.entry[0].changes[0].value.metadata.phone_number_id)
+      //   .set({
+      //     number: req.body.entry[0].changes[0].value.metadata.phone_number_id,
+      //   });
+      // extract the message text from the webhook payload
+      // axios({
+      //   method: "POST", // Required, HTTP method, a string, e.g. POST, GET
+      //   url:
+      //     "https://graph.facebook.com/v12.0/" +
+      //     phone_number_id +
+      //     "/messages?access_token=" +
+      //     token,
+      //   data: {
+      //     messaging_product: "whatsapp",
+      //     to: from,
+      //     text: {
+      //       body: "Thanks for reaching out to us. An agent will be connected with you in sometime.",
+      //     },
+      //   },
+      //   headers: { "Content-Type": "application/json" },
+      // });
     }
     res.sendStatus(200);
   } else {
