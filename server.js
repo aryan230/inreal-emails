@@ -81,7 +81,7 @@ app.post("/webhook", async (req, res) => {
       //Save message in firebase storage
       customerRef.get().then((snap) => {
         snap.forEach(async (element) => {
-          if (element.id == phone_number_id) {
+          if (element.id == from) {
             console.log(element.data());
             let chats = element.data().data;
             await chats.push({
@@ -105,7 +105,7 @@ app.post("/webhook", async (req, res) => {
                 timestamp,
               },
             ];
-            await customerRef.doc(phone_number_id).set({
+            await customerRef.doc(from).set({
               data: chats,
             });
           }
