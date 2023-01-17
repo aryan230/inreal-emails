@@ -96,8 +96,9 @@ app.post("/webhook", async (req, res) => {
       let name = req.body.entry[0].changes[0].value.contacts[0].profile.name;
       let timestamp = req.body.entry[0].changes[0].value.messages[0].timestamp;
       //Save message in firebase storage
-      let customerRef = db.collection("messages").doc(from);
-      const doc = await customerRef.get();
+      let messageRef = db.collection("messages").doc(from);
+      let customerRef = db.collection("messages");
+      const doc = await messageRef.get();
       if (!doc.exists) {
         let Newchats = [
           {
