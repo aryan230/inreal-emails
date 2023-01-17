@@ -92,10 +92,10 @@ app.post("/webhook", async (req, res) => {
       //Save message in firebase storage
       let customerRef = db.collection("messages");
 
-      console.log(from);
+      console.log(typeof from);
       customerRef.get().then((snap) => {
         snap.forEach(async (element) => {
-          console.log(element.id);
+          console.log(typeof element.id);
           // switch (String(from)) {
           //   case String(element.id): {
           //     console.log(element.data());
