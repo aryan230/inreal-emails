@@ -38,14 +38,14 @@ app.get("/firebase", async (req, res) => {
   let customerRef = db.collection("messages");
   customerRef.get().then((snap) => {
     snap.forEach(async (element) => {
-      if (element.id === "103390155979999") {
+      if (element.id === "917045013337") {
         console.log(element.data());
         let chats = element.data().data;
         await chats.push({
           name: "ayaan",
         });
 
-        await customerRef.doc(element.id).set({
+        await customerRef.doc(element.id).update({
           data: chats,
         });
       }
@@ -56,8 +56,6 @@ app.get("/firebase", async (req, res) => {
 app.post("/webhook", async (req, res) => {
   // Parse the request body from the POST
   let body = req.body;
-
-  let customerRef = db.collection("messages");
 
   // Check the Incoming webhook message
   console.log(JSON.stringify(req.body, null, 2));
@@ -79,10 +77,11 @@ app.post("/webhook", async (req, res) => {
       let name = req.body.entry[0].changes[0].value.contacts[0].profile.name;
       let timestamp = req.body.entry[0].changes[0].value.messages[0].timestamp;
       //Save message in firebase storage
+      let customerRef = db.collection("messages");
       customerRef.get().then((snap) => {
         snap.forEach(async (element) => {
           if (element.id === from) {
-            let chats = element.data();
+            let chats = element.data().data;
             await chats.push({
               number: from,
               name,
@@ -91,19 +90,22 @@ app.post("/webhook", async (req, res) => {
               timestamp,
             });
             console.log(chats);
-            await customerRef.doc(from).set(chats);
-          } else if (element.id != from) {
-            let chats = [
-              {
-                number: from,
-                name,
-                messageID,
-                text: msg_body,
-                timestamp,
-              },
-            ];
-            await customerRef.doc(from).set(chats);
+            await customerRef.doc(element.id).update({
+              data: chats,
+            });
           }
+          //  else if (element.id != from) {
+          //   let chats = [
+          //     {
+          //       number: from,
+          //       name,
+          //       messageID,
+          //       text: msg_body,
+          //       timestamp,
+          //     },
+          //   ];
+          //   await customerRef.doc(from).set(chats);
+          // }
         });
       });
       // await customerRef
