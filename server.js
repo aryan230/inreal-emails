@@ -62,19 +62,6 @@ app.get("/firebase", async (req, res) => {
           });
         }
       }
-
-      // if (element.id === "917045013337") {
-      //   console.log(element.data());
-      //   let chats = element.data().data;
-      //   await chats.push({
-      //     name: "ayaan",
-      //   });
-
-      //   await customerRef.doc(element.id).update({
-      //     data: chats,
-      //   });
-      // } else {
-      // }
     });
   });
 });
