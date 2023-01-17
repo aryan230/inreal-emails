@@ -138,20 +138,6 @@ app.post("/webhook", async (req, res) => {
           //     });
           //   }
           // }
-          if (element.id === from) {
-            let chats = element.data().data;
-            await chats.push({
-              number: from,
-              name,
-              messageID,
-              text: msg_body,
-              timestamp,
-            });
-            console.log(chats);
-            await customerRef.doc(element.id).update({
-              data: chats,
-            });
-          }
           if (element.id != from) {
             let somechats = [
               {
@@ -164,6 +150,19 @@ app.post("/webhook", async (req, res) => {
             ];
             await customerRef.doc(from).set({
               data: somechats,
+            });
+          } else {
+            let chats = element.data().data;
+            await chats.push({
+              number: from,
+              name,
+              messageID,
+              text: msg_body,
+              timestamp,
+            });
+            console.log(chats);
+            await customerRef.doc(element.id).update({
+              data: chats,
             });
           }
           //  else if (element.id != from) {
