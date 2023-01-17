@@ -84,7 +84,7 @@ app.post("/webhook", async (req, res) => {
   let body = req.body;
 
   // Check the Incoming webhook message
-  console.log(JSON.stringify(req.body, null, 2));
+  // console.log(JSON.stringify(req.body, null, 2));
 
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
@@ -104,8 +104,11 @@ app.post("/webhook", async (req, res) => {
       let timestamp = req.body.entry[0].changes[0].value.messages[0].timestamp;
       //Save message in firebase storage
       let customerRef = db.collection("messages");
+
+      console.log(from);
       customerRef.get().then((snap) => {
         snap.forEach(async (element) => {
+          console.log(element.id);
           // switch (String(from)) {
           //   case String(element.id): {
           //     console.log(element.data());
@@ -117,7 +120,6 @@ app.post("/webhook", async (req, res) => {
           //       text: msg_body,
           //       timestamp,
           //     });
-
           //     await customerRef.doc(element.id).update({
           //       data: chats,
           //     });
@@ -138,33 +140,33 @@ app.post("/webhook", async (req, res) => {
           //     });
           //   }
           // }
-          if (element.id != from) {
-            let somechats = [
-              {
-                number: from,
-                name,
-                messageID,
-                text: msg_body,
-                timestamp,
-              },
-            ];
-            await customerRef.doc(from).set({
-              data: somechats,
-            });
-          } else {
-            let chats = element.data().data;
-            await chats.push({
-              number: from,
-              name,
-              messageID,
-              text: msg_body,
-              timestamp,
-            });
-            console.log(chats);
-            await customerRef.doc(element.id).update({
-              data: chats,
-            });
-          }
+          // if (element.id != from) {
+          //   let somechats = [
+          //     {
+          //       number: from,
+          //       name,
+          //       messageID,
+          //       text: msg_body,
+          //       timestamp,
+          //     },
+          //   ];
+          //   await customerRef.doc(from).set({
+          //     data: somechats,
+          //   });
+          // } else {
+          //   let chats = element.data().data;
+          //   await chats.push({
+          //     number: from,
+          //     name,
+          //     messageID,
+          //     text: msg_body,
+          //     timestamp,
+          //   });
+          //   console.log(chats);
+          //   await customerRef.doc(element.id).update({
+          //     data: chats,
+          //   });
+          // }
           //  else if (element.id != from) {
           //   let chats = [
           //     {
