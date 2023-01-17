@@ -82,7 +82,7 @@ app.post("/webhook", async (req, res) => {
       customerRef.get().then((snap) => {
         snap.forEach(async (element) => {
           if (element.id === from) {
-            let chats = element.data().data;
+            let chats = element.data();
             await chats.push({
               number: from,
               name,
@@ -91,9 +91,7 @@ app.post("/webhook", async (req, res) => {
               timestamp,
             });
             console.log(chats);
-            await customerRef.doc(from).set({
-              data: chats,
-            });
+            await customerRef.doc(from).set(chats);
           } else if (element.id != from) {
             let chats = [
               {
@@ -104,9 +102,7 @@ app.post("/webhook", async (req, res) => {
                 timestamp,
               },
             ];
-            await customerRef.doc(from).set({
-              data: chats,
-            });
+            await customerRef.doc(from).set(chats);
           }
         });
       });
