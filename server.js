@@ -106,8 +106,8 @@ app.post("/webhook", async (req, res) => {
       let customerRef = db.collection("messages");
       customerRef.get().then((snap) => {
         snap.forEach(async (element) => {
-          switch (element.id) {
-            case from: {
+          switch (String(element.id)) {
+            case String(from): {
               console.log(element.data());
               let chats = element.data().data;
               await chats.push({
