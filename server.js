@@ -38,17 +38,43 @@ app.get("/firebase", async (req, res) => {
   let customerRef = db.collection("messages");
   customerRef.get().then((snap) => {
     snap.forEach(async (element) => {
-      if (element.id === "917045013337") {
-        console.log(element.data());
-        let chats = element.data().data;
-        await chats.push({
-          name: "ayaan",
-        });
+      switch (element.id) {
+        case "917045013337": {
+          console.log(element.data());
+          let chats = element.data().data;
+          await chats.push({
+            name: "ayaan",
+          });
 
-        await customerRef.doc(element.id).update({
-          data: chats,
-        });
+          await customerRef.doc(element.id).update({
+            data: chats,
+          });
+          break;
+        }
+        default: {
+          let Newchats = [
+            {
+              name: "tanu",
+            },
+          ];
+          await customerRef.doc(element.id).set({
+            data: Newchats,
+          });
+        }
       }
+
+      // if (element.id === "917045013337") {
+      //   console.log(element.data());
+      //   let chats = element.data().data;
+      //   await chats.push({
+      //     name: "ayaan",
+      //   });
+
+      //   await customerRef.doc(element.id).update({
+      //     data: chats,
+      //   });
+      // } else {
+      // }
     });
   });
 });
@@ -80,20 +106,52 @@ app.post("/webhook", async (req, res) => {
       let customerRef = db.collection("messages");
       customerRef.get().then((snap) => {
         snap.forEach(async (element) => {
-          if (element.id === from) {
-            let chats = element.data().data;
-            await chats.push({
-              number: from,
-              name,
-              messageID,
-              text: msg_body,
-              timestamp,
-            });
-            console.log(chats);
-            await customerRef.doc(element.id).update({
-              data: chats,
-            });
+          switch (element.id) {
+            case from: {
+              console.log(element.data());
+              let chats = element.data().data;
+              await chats.push({
+                number: from,
+                name,
+                messageID,
+                text: msg_body,
+                timestamp,
+              });
+
+              await customerRef.doc(element.id).update({
+                data: chats,
+              });
+              break;
+            }
+            default: {
+              let Newchats = [
+                {
+                  number: from,
+                  name,
+                  messageID,
+                  text: msg_body,
+                  timestamp,
+                },
+              ];
+              await customerRef.doc(from).set({
+                data: Newchats,
+              });
+            }
           }
+          // if (element.id === from) {
+          //   let chats = element.data().data;
+          //   await chats.push({
+          //     number: from,
+          //     name,
+          //     messageID,
+          //     text: msg_body,
+          //     timestamp,
+          //   });
+          //   console.log(chats);
+          //   await customerRef.doc(element.id).update({
+          //     data: chats,
+          //   });
+          // }
           //  else if (element.id != from) {
           //   let chats = [
           //     {
