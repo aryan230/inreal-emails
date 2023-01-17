@@ -35,35 +35,41 @@ admin.initializeApp({
 const db = admin.firestore();
 
 app.get("/firebase", async (req, res) => {
-  let customerRef = db.collection("messages");
-  customerRef.get().then((snap) => {
-    snap.forEach(async (element) => {
-      switch (element.id) {
-        case "917045013337": {
-          console.log(element.data());
-          let chats = element.data().data;
-          await chats.push({
-            name: "ayaan",
-          });
+  let customerRef = db.collection("messages").doc("917045013337");
+  const doc = await customerRef.get();
+  if (!doc.exists) {
+    console.log("No such document!");
+  } else {
+    console.log("Document data:", doc.data());
+  }
+  // customerRef.get().then((snap) => {
+  //   snap.forEach(async (element) => {
+  //     switch (element.id) {
+  //       case "917045013337": {
+  //         console.log(element.data());
+  //         let chats = element.data().data;
+  //         await chats.push({
+  //           name: "ayaan",
+  //         });
 
-          await customerRef.doc(element.id).update({
-            data: chats,
-          });
-          break;
-        }
-        default: {
-          let Newchats = [
-            {
-              name: "tanu",
-            },
-          ];
-          await customerRef.doc(element.id).set({
-            data: Newchats,
-          });
-        }
-      }
-    });
-  });
+  //         await customerRef.doc(element.id).update({
+  //           data: chats,
+  //         });
+  //         break;
+  //       }
+  //       default: {
+  //         let Newchats = [
+  //           {
+  //             name: "tanu",
+  //           },
+  //         ];
+  //         await customerRef.doc(element.id).set({
+  //           data: Newchats,
+  //         });
+  //       }
+  //     }
+  //   });
+  // });
 });
 
 app.post("/webhook", async (req, res) => {
@@ -90,84 +96,136 @@ app.post("/webhook", async (req, res) => {
       let name = req.body.entry[0].changes[0].value.contacts[0].profile.name;
       let timestamp = req.body.entry[0].changes[0].value.messages[0].timestamp;
       //Save message in firebase storage
-      let customerRef = db.collection("messages");
-
-      console.log(typeof from);
-      customerRef.get().then((snap) => {
-        snap.forEach(async (element) => {
-          console.log(typeof element.id);
-          // switch (String(from)) {
-          //   case String(element.id): {
-          //     console.log(element.data());
-          //     let chats = element.data().data;
-          //     await chats.push({
-          //       number: from,
-          //       name,
-          //       messageID,
-          //       text: msg_body,
-          //       timestamp,
-          //     });
-          //     await customerRef.doc(element.id).update({
-          //       data: chats,
-          //     });
-          //     break;
-          //   }
-          //   default: {
-          //     let Newchats = [
-          //       {
-          //         number: from,
-          //         name,
-          //         messageID,
-          //         text: msg_body,
-          //         timestamp,
-          //       },
-          //     ];
-          //     await customerRef.doc(from).set({
-          //       data: Newchats,
-          //     });
-          //   }
-          // }
-          // if (element.id != from) {
-          //   let somechats = [
-          //     {
-          //       number: from,
-          //       name,
-          //       messageID,
-          //       text: msg_body,
-          //       timestamp,
-          //     },
-          //   ];
-          //   await customerRef.doc(from).set({
-          //     data: somechats,
-          //   });
-          // } else {
-          //   let chats = element.data().data;
-          //   await chats.push({
-          //     number: from,
-          //     name,
-          //     messageID,
-          //     text: msg_body,
-          //     timestamp,
-          //   });
-          //   console.log(chats);
-          //   await customerRef.doc(element.id).update({
-          //     data: chats,
-          //   });
-          // }
-          //  else if (element.id != from) {
-          //   let chats = [
-          //     {
-          //       number: from,
-          //       name,
-          //       messageID,
-          //       text: msg_body,
-          //       timestamp,
-          //     },
-          //   ];
-          //   await customerRef.doc(from).set(chats);
-          // }
+      let customerRef = db.collection("messages").doc(from);
+      const doc = await customerRef.get();
+      if (!doc.exists) {
+        let Newchats = [
+          {
+            number: from,
+            name,
+            messageID,
+            text: msg_body,
+            timestamp,
+          },
+        ];
+        await customerRef.doc(from).set({
+          data: Newchats,
         });
-      });
+      } else {
+        console.log("Document data:", doc.data());
+        let chats = doc.data().data;
+        await chats.push({
+          number: from,
+          name,
+          messageID,
+          text: msg_body,
+          timestamp,
+        });
+        await customerRef.doc(from).update({
+          data: chats,
+        });
+      }
+      // customerRef.get().then((snap) => {
+      //   snap.forEach(async (element) => {
+      // console.log(typeof element.id);
+      // if (element.id === from) {
+      //   let chats = element.data().data;
+      //   await chats.push({
+      //     number: from,
+      //     name,
+      //     messageID,
+      //     text: msg_body,
+      //     timestamp,
+      //   });
+      //   await customerRef.doc(element.id).update({
+      //     data: chats,
+      //   });
+      // } else {
+      //   let Newchats = [
+      //     {
+      //       number: from,
+      //       name,
+      //       messageID,
+      //       text: msg_body,
+      //       timestamp,
+      //     },
+      //   ];
+      //   await customerRef.doc(from).set({
+      //     data: Newchats,
+      //   });
+      // }
+      // switch (String(from)) {
+      //   case String(element.id): {
+      //     console.log(element.data());
+      //     let chats = element.data().data;
+      //     await chats.push({
+      //       number: from,
+      //       name,
+      //       messageID,
+      //       text: msg_body,
+      //       timestamp,
+      //     });
+      //     await customerRef.doc(element.id).update({
+      //       data: chats,
+      //     });
+      //     break;
+      //   }
+      //   default: {
+      //     let Newchats = [
+      //       {
+      //         number: from,
+      //         name,
+      //         messageID,
+      //         text: msg_body,
+      //         timestamp,
+      //       },
+      //     ];
+      //     await customerRef.doc(from).set({
+      //       data: Newchats,
+      //     });
+      //   }
+      // }
+      // if (element.id != from) {
+      //   let somechats = [
+      //     {
+      //       number: from,
+      //       name,
+      //       messageID,
+      //       text: msg_body,
+      //       timestamp,
+      //     },
+      //   ];
+      //   await customerRef.doc(from).set({
+      //     data: somechats,
+      //   });
+      // } else {
+      //   let chats = element.data().data;
+      //   await chats.push({
+      //     number: from,
+      //     name,
+      //     messageID,
+      //     text: msg_body,
+      //     timestamp,
+      //   });
+      //   console.log(chats);
+      //   await customerRef.doc(element.id).update({
+      //     data: chats,
+      //   });
+      // }
+      //  else if (element.id != from) {
+      //   let chats = [
+      //     {
+      //       number: from,
+      //       name,
+      //       messageID,
+      //       text: msg_body,
+      //       timestamp,
+      //     },
+      //   ];
+      //   await customerRef.doc(from).set(chats);
+      // }
+      //   });
+      // });
       // await customerRef
       //   .doc(req.body.entry[0].changes[0].value.metadata.phone_number_id)
       //   .set({
