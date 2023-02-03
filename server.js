@@ -8,10 +8,15 @@ import nodemailer from "nodemailer";
 import admin from "firebase-admin";
 import { getDatabase } from "firebase-admin/database";
 import axios from "axios";
+import twilio from "twilio";
 dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+const client = new twilio(
+  "ACf1a2dac689f76091adc627ca404c3699",
+  "b406b67fec39064923311c951bee8396"
+);
 const token = process.env.WHATSAPP_TOKEN;
 // app.use(cors(corsOptions));
 var serviceAccount = {
@@ -35,41 +40,28 @@ admin.initializeApp({
 const db = admin.firestore();
 
 app.get("/firebase", async (req, res) => {
-  let customerRef = db.collection("messages").doc("917045013337");
-  const doc = await customerRef.get();
-  if (!doc.exists) {
-    console.log("No such document!");
-  } else {
-    console.log("Document data:", doc.data());
-  }
-  // customerRef.get().then((snap) => {
-  //   snap.forEach(async (element) => {
-  //     switch (element.id) {
-  //       case "917045013337": {
-  //         console.log(element.data());
-  //         let chats = element.data().data;
-  //         await chats.push({
-  //           name: "ayaan",
-  //         });
+  let messageRef = db.collection("messages").doc("917045013337");
+  let customerRef = db.collection("messages");
+  const doc = await messageRef.get();
+  let data = doc.data().data;
+  let dataIndex = data.findIndex(
+    (obj) =>
+      obj.messageID ===
+      "wamid.HBgMOTE3MDQ1MDEzMzM3FQIAERgSMENDMzQ2RTRGQUFFRTMxRTMzAA=="
+  );
 
-  //         await customerRef.doc(element.id).update({
-  //           data: chats,
-  //         });
-  //         break;
-  //       }
-  //       default: {
-  //         let Newchats = [
-  //           {
-  //             name: "tanu",
-  //           },
-  //         ];
-  //         await customerRef.doc(element.id).set({
-  //           data: Newchats,
-  //         });
-  //       }
-  //     }
-  //   });
-  // });
+  data[dataIndex].status = "delivered";
+  console.log(data);
+});
+
+app.get("/whatsms", async (req, res) => {
+  client.messages
+    .create({
+      from: "whatsapp:+19379666165",
+      body: "Your appointment is coming up on July 21 at 3PM",
+      to: "whatsapp:+917045013337",
+    })
+    .then((message) => console.log(message));
 });
 
 app.post("/webhook", async (req, res) => {
@@ -112,6 +104,19 @@ app.post("/webhook", async (req, res) => {
     }
   };
 
+  const updateStatusFirebase = async (from, status, id) => {
+    let messageRef = db.collection("messages").doc(from);
+    let customerRef = db.collection("messages");
+    const doc = await messageRef.get();
+    let data = doc.data().data;
+    let dataIndex = data.findIndex((obj) => obj.messageID === id);
+
+    data[dataIndex].status = status;
+    console.log(data);
+    await customerRef.doc(from).update({
+      data: data,
+    });
+  };
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
     if (
@@ -150,8 +155,14 @@ app.post("/webhook", async (req, res) => {
             .button_reply.title;
         firebaseSet(from, name, messageID, msg_body, timestamp);
       } else {
-        let msg_body = "Something different";
-        firebaseSet(from, name, messageID, msg_body, timestamp);
+        if (req.body.entry[0].statuses[0].status) {
+          const status = req.body.entry[0].statuses[0].status;
+          const id = req.body.entry[0].statuses[0].id;
+          updateStatusFirebase(from, status, id);
+        } else {
+          let msg_body = "Something different";
+          firebaseSet(from, name, messageID, msg_body, timestamp);
+        }
       }
 
       // extract the phone number from the webhook payload

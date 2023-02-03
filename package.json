@@ -30,7 +30,7 @@
     "qrcode": "^1.5.1",
     "razorpay": "^2.8.2",
     "react-dropdown": "^1.10.0",
-    "twilio": "^3.80.0"
+    "twilio": "^3.84.1"
   },
   "devDependencies": {
     "concurrently": "^7.2.2",
