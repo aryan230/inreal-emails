@@ -69,7 +69,6 @@ app.post("/webhook", async (req, res) => {
   let body = req.body;
 
   // Check the Incoming webhook message
-  console.log(JSON.stringify(req.body, null, 2));
 
   const firebaseSet = async (from, name, messageID, msg_body, timestamp) => {
     let messageRef = db.collection("messages").doc(from);
@@ -157,6 +156,7 @@ app.post("/webhook", async (req, res) => {
       } else {
         if (req.body.entry[0].statuses[0].status) {
           const status = req.body.entry[0].statuses[0].status;
+          console.log(status);
           const id = req.body.entry[0].statuses[0].id;
           updateStatusFirebase(from, status, id);
         } else {
@@ -164,134 +164,6 @@ app.post("/webhook", async (req, res) => {
           firebaseSet(from, name, messageID, msg_body, timestamp);
         }
       }
-
-      // extract the phone number from the webhook payload
-
-      //Save message in firebase storage
-
-      // customerRef.get().then((snap) => {
-      //   snap.forEach(async (element) => {
-      // console.log(typeof element.id);
-      // if (element.id === from) {
-      //   let chats = element.data().data;
-      //   await chats.push({
-      //     number: from,
-      //     name,
-      //     messageID,
-      //     text: msg_body,
-      //     timestamp,
-      //   });
-      //   await customerRef.doc(element.id).update({
-      //     data: chats,
-      //   });
-      // } else {
-      //   let Newchats = [
-      //     {
-      //       number: from,
-      //       name,
-      //       messageID,
-      //       text: msg_body,
-      //       timestamp,
-      //     },
-      //   ];
-      //   await customerRef.doc(from).set({
-      //     data: Newchats,
-      //   });
-      // }
-      // switch (String(from)) {
-      //   case String(element.id): {
-      //     console.log(element.data());
-      //     let chats = element.data().data;
-      //     await chats.push({
-      //       number: from,
-      //       name,
-      //       messageID,
-      //       text: msg_body,
-      //       timestamp,
-      //     });
-      //     await customerRef.doc(element.id).update({
-      //       data: chats,
-      //     });
-      //     break;
-      //   }
-      //   default: {
-      //     let Newchats = [
-      //       {
-      //         number: from,
-      //         name,
-      //         messageID,
-      //         text: msg_body,
-      //         timestamp,
-      //       },
-      //     ];
-      //     await customerRef.doc(from).set({
-      //       data: Newchats,
-      //     });
-      //   }
-      // }
-      // if (element.id != from) {
-      //   let somechats = [
-      //     {
-      //       number: from,
-      //       name,
-      //       messageID,
-      //       text: msg_body,
-      //       timestamp,
-      //     },
-      //   ];
-      //   await customerRef.doc(from).set({
-      //     data: somechats,
-      //   });
-      // } else {
-      //   let chats = element.data().data;
-      //   await chats.push({
-      //     number: from,
-      //     name,
-      //     messageID,
-      //     text: msg_body,
-      //     timestamp,
-      //   });
-      //   console.log(chats);
-      //   await customerRef.doc(element.id).update({
-      //     data: chats,
-      //   });
-      // }
-      //  else if (element.id != from) {
-      //   let chats = [
-      //     {
-      //       number: from,
-      //       name,
-      //       messageID,
-      //       text: msg_body,
-      //       timestamp,
-      //     },
-      //   ];
-      //   await customerRef.doc(from).set(chats);
-      // }
-      //   });
-      // });
-      // await customerRef
-      //   .doc(req.body.entry[0].changes[0].value.metadata.phone_number_id)
-      //   .set({
-      //     number: req.body.entry[0].changes[0].value.metadata.phone_number_id,
-      //   });
-      // extract the message text from the webhook payload
-      // axios({
-      //   method: "POST", // Required, HTTP method, a string, e.g. POST, GET
-      //   url:
-      //     "https://graph.facebook.com/v12.0/" +
-      //     phone_number_id +
-      //     "/messages?access_token=" +
-      //     token,
-      //   data: {
-      //     messaging_product: "whatsapp",
-      //     to: from,
-      //     text: {
-      //       body: "Thanks for reaching out to us. An agent will be connected with you in sometime.",
-      //     },
-      //   },
-      //   headers: { "Content-Type": "application/json" },
-      // });
     }
     res.sendStatus(200);
   } else {
