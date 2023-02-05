@@ -82,6 +82,7 @@ app.post("/webhook", async (req, res) => {
           messageID,
           text: msg_body,
           timestamp,
+          readMsg: 0,
         },
       ];
       await customerRef.doc(from).set({
@@ -96,6 +97,7 @@ app.post("/webhook", async (req, res) => {
         messageID,
         text: msg_body,
         timestamp,
+        readMsg: 0,
       });
       await customerRef.doc(from).update({
         data: chats,
