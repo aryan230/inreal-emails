@@ -67,7 +67,7 @@ app.get("/whatsms", async (req, res) => {
 app.post("/webhook", async (req, res) => {
   // Parse the request body from the POST
   let body = req.body;
-
+  console.log(body);
   // Check the Incoming webhook message
 
   const firebaseSet = async (from, name, messageID, msg_body, timestamp) => {
@@ -153,15 +153,15 @@ app.post("/webhook", async (req, res) => {
           req.body.entry[0].changes[0].value.messages[0].interactive
             .button_reply.title;
         firebaseSet(from, name, messageID, msg_body, timestamp);
-      } else if (req.body.entry[0].changes[0].value.statuses[0].status) {
-        const status = req.body.entry[0].changes[0].value.statuses[0].status;
-        console.log(status);
-        const id = req.body.entry[0].changes[0].value.statuses[0].id;
-        updateStatusFirebase(from, status, id);
       } else {
         let msg_body = "Something different";
         firebaseSet(from, name, messageID, msg_body, timestamp);
       }
+    } else if (req.body.entry[0].changes[0].value.statuses[0].status) {
+      const status = req.body.entry[0].changes[0].value.statuses[0].status;
+      console.log(status);
+      const id = req.body.entry[0].changes[0].value.statuses[0].id;
+      updateStatusFirebase(from, status, id);
     }
     res.sendStatus(200);
   } else {
