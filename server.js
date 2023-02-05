@@ -69,7 +69,7 @@ app.post("/webhook", async (req, res) => {
   let body = req.body;
 
   // Check the Incoming webhook message
-
+  console.log(body);
   const firebaseSet = async (from, name, messageID, msg_body, timestamp) => {
     let messageRef = db.collection("messages").doc(from);
     let customerRef = db.collection("messages");
@@ -153,13 +153,13 @@ app.post("/webhook", async (req, res) => {
           req.body.entry[0].changes[0].value.messages[0].interactive
             .button_reply.title;
         firebaseSet(from, name, messageID, msg_body, timestamp);
-      } else {
-        if (req.body.entry[0].changes[0].value.statuses[0].status) {
-          const status = req.body.entry[0].changes[0].value.statuses[0].status;
+      } else if(req.body.entry[0].changes[0].value.statuses[0].status) {
+        const status = req.body.entry[0].changes[0].value.statuses[0].status;
           console.log(status);
           const id = req.body.entry[0].changes[0].value.statuses[0].id;
           updateStatusFirebase(from, status, id);
-        } else {
+      }
+        else {
           let msg_body = "Something different";
           firebaseSet(from, name, messageID, msg_body, timestamp);
         }
