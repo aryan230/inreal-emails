@@ -81,7 +81,7 @@ app.post("/webhook", async (req, res) => {
           name,
           messageID,
           text: msg_body,
-          timestamp,
+          timestamp: Date.now(),
           readMsg: 0,
         },
       ];
@@ -96,7 +96,7 @@ app.post("/webhook", async (req, res) => {
         name,
         messageID,
         text: msg_body,
-        timestamp,
+        timestamp: Date.now(),
         readMsg: 0,
       });
       await customerRef.doc(from).update({
