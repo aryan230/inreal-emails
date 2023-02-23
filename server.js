@@ -50,9 +50,8 @@ app.post("/webhook", async (req, res) => {
       });
       if (message) {
         res.status(201);
-        io.on("connection", async (socket) => {
-          socket.emit("message_came", message);
-        });
+
+        socket.emit("message_came", message);
       } else {
         res.status(400);
         throw new Error("Invalid User data");
@@ -72,9 +71,7 @@ app.post("/webhook", async (req, res) => {
       });
       if (message) {
         res.status(201);
-        io.on("connection", async (socket) => {
-          socket.emit("message_came", message);
-        });
+        socket.emit("message_came", message);
       } else {
         res.status(400);
         throw new Error("Invalid User data");
@@ -196,13 +193,3 @@ server.listen(
   process.env.PORT || 3001,
   console.log("Server running on port " + PORT)
 );
-
-io.on("connection", async (socket) => {
-  console.log(socket.id);
-  const users = await User.find();
-  socket.emit("users", users);
-
-  socket.on("disconnect", () => {
-    console.log(socket.id, "Disconnected");
-  });
-});
