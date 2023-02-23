@@ -49,6 +49,7 @@ app.post("/webhook", async (req, res) => {
         timestamp: Date.now(),
       });
       if (message) {
+        io.emit("message_came", message);
         res.status(201);
       } else {
         res.status(400);
