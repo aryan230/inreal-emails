@@ -40,6 +40,7 @@ app.post("/webhook", async (req, res) => {
         messageID,
         text: msg_body,
         number: from,
+        timestamp: Date.now(),
       });
       if (message) {
         res.status(201);
@@ -54,12 +55,14 @@ app.post("/webhook", async (req, res) => {
       const user = await User.create({
         name,
         number: from,
+        timestamp: Date.now(),
       });
       const message = await Messages.create({
         user: user._id,
         messageID,
         text: msg_body,
         number: from,
+        timestamp: Date.now(),
       });
       if (message) {
         res.status(201);

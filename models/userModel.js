@@ -9,6 +9,9 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    timestamp: {
+      type: String,
+    },
   },
   {
     timestamps: true,

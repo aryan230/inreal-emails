@@ -15,6 +15,9 @@ const bulkSchema = mongoose.Schema(
         },
       },
     ],
+    timestamp: {
+      type: String,
+    },
   },
   {
     timestamps: true,

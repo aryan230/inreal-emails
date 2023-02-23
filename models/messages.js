@@ -22,6 +22,9 @@ const messagesSchema = mongoose.Schema(
     status: {
       type: String,
     },
+    timestamp: {
+      type: String,
+    },
   },
   {
     timestamps: true,
