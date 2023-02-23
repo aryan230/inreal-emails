@@ -26,6 +26,12 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
+app.get("/api/chats", async (req, res) => {
+  const numberID = Number(req.body.number);
+  const messages = await Messages.find({ numberID });
+  res.json(messages);
+});
+
 app.post("/webhook", async (req, res) => {
   // Parse the request body from the POST
   let body = req.body;
@@ -194,7 +200,7 @@ server.listen(
 io.on("connection", async (socket) => {
   console.log(socket.id);
   const users = await User.find();
-  socket.emit("init_data", users);
+  socket.emit("users", users);
 
   socket.on("disconnect", () => {
     console.log(socket.id, "Disconnected");
