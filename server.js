@@ -50,7 +50,6 @@ app.post("/webhook", async (req, res) => {
       });
       if (message) {
         res.status(201);
-
         socket.emit("message_came", message);
       } else {
         res.status(400);
@@ -193,3 +192,13 @@ server.listen(
   process.env.PORT || 3001,
   console.log("Server running on port " + PORT)
 );
+
+io.on("connection", async (socket) => {
+  console.log(socket.id);
+  const users = await User.find();
+  socket.emit("users", users);
+
+  socket.on("disconnect", () => {
+    console.log(socket.id, "Disconnected");
+  });
+});
