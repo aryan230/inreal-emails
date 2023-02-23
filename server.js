@@ -50,7 +50,6 @@ app.post("/webhook", async (req, res) => {
       });
       if (message) {
         res.status(201);
-        socket.emit("message_came", message);
       } else {
         res.status(400);
         throw new Error("Invalid User data");
@@ -70,7 +69,6 @@ app.post("/webhook", async (req, res) => {
       });
       if (message) {
         res.status(201);
-        socket.emit("message_came", message);
       } else {
         res.status(400);
         throw new Error("Invalid User data");
