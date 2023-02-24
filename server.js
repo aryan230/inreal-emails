@@ -49,7 +49,7 @@ app.post("/webhook", async (req, res) => {
         timestamp: Date.now(),
       });
       if (message) {
-        io.emit("message_came", message);
+        sendMessage(message);
         res.status(201);
       } else {
         res.status(400);
@@ -196,6 +196,14 @@ io.on("connection", async (socket) => {
   console.log(socket.id);
   const users = await User.find();
   socket.emit("users", users);
+
+  const sendMessage = async (message) => {
+    socket.emit("message_received", message);
+  };
+
+  socket.on("join-room", () => {
+    socket.join("two");
+  });
 
   socket.on("disconnect", () => {
     console.log(socket.id, "Disconnected");
