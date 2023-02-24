@@ -49,7 +49,7 @@ app.post("/webhook", async (req, res) => {
         timestamp: Date.now(),
       });
       if (message) {
-        sendMessage(message);
+        io.emit("message_came", message);
         res.status(201);
       } else {
         res.status(400);
@@ -154,6 +154,14 @@ app.post("/webhook", async (req, res) => {
 //   let msg_body = "Something different";
 //   firebaseSet(from, name, messageID, msg_body, timestamp);
 // }
+io.on("connection", async (socket) => {
+  console.log(socket.id);
+  const users = await User.find();
+  io.emit("users", users);
+  socket.on("disconnect", () => {
+    console.log(socket.id, "Disconnected");
+  });
+});
 
 app.get("/webhook", (req, res) => {
   /**
@@ -191,12 +199,3 @@ server.listen(
   process.env.PORT || 3001,
   console.log("Server running on port " + PORT)
 );
-
-io.on("connection", async (socket) => {
-  console.log(socket.id);
-  const users = await User.find();
-  socket.emit("users", users);
-  socket.on("disconnect", () => {
-    console.log(socket.id, "Disconnected");
-  });
-});
