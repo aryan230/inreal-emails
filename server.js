@@ -199,9 +199,6 @@ io.on("connection", async (socket) => {
   const sendMessage = async (message) => {
     socket.emit("message_received", message);
   };
-  socket.on("join-room", () => {
-    socket.join("two");
-  });
   socket.on("disconnect", () => {
     console.log(socket.id, "Disconnected");
   });
