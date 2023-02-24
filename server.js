@@ -192,14 +192,11 @@ server.listen(
   console.log("Server running on port " + PORT)
 );
 
-// io.on("connection", async (socket) => {
-//   console.log(socket.id);
-//   const users = await User.find();
-//   socket.emit("users", users);
-//   const sendMessage = async (message) => {
-//     socket.emit("message_received", message);
-//   };
-//   socket.on("disconnect", () => {
-//     console.log(socket.id, "Disconnected");
-//   });
-// });
+io.on("connection", async (socket) => {
+  console.log(socket.id);
+  const users = await User.find();
+  socket.emit("users", users);
+  socket.on("disconnect", () => {
+    console.log(socket.id, "Disconnected");
+  });
+});
