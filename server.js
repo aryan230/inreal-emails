@@ -56,19 +56,20 @@ app.post("/webhook", async (req, res) => {
         throw new Error("Invalid User data");
       }
     } else {
-      const user = await User.create({
+      const newUser = await User.create({
         name,
         number: from,
         timestamp: Date.now(),
       });
       const message = await Messages.create({
-        user: user._id,
+        user: newUser._id,
         messageID,
         text: msg_body,
         number: from,
         timestamp: Date.now(),
       });
       if (message) {
+        io.emit("message_came", message);
         res.status(201);
       } else {
         res.status(400);
