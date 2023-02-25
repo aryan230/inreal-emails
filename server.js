@@ -26,10 +26,85 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-app.get("/api/chats", async (req, res) => {
-  const numberID = Number(req.body.number);
-  const messages = await Messages.find({ numberID });
+app.post("/api/update/unreadMsg", async (req, res) => {
+  const { number } = req.body;
+  const user = await User.findOne({ number });
+  user.unreadMessages = 0;
+  const updatedUser = await user.save();
+  res.status(200).json(updatedUser);
+});
+
+app.post("/test/webhook", async (req, res) => {
+  const firebaseSet = async (from, name, messageID, msg_body, timestamp) => {
+    const user = await User.findOne({ number: from });
+    if (user) {
+      console.log("User Found");
+      const message = await Messages.create({
+        user: user._id,
+        messageID,
+        text: msg_body,
+        number: from,
+        timestamp: Date.now(),
+        unreadMsg: true,
+      });
+      if (message) {
+        user.timestamp = Date.now();
+        user.lastMessage = msg_body;
+        user.unreadMessages = user.unreadMessages + 1;
+        const updatedUser = await user.save();
+        io.emit("message_came", message);
+        res.status(201);
+        res.json(updatedUser);
+      } else {
+        res.status(400);
+        throw new Error("Invalid User data");
+      }
+    } else {
+      console.log("User Not Found");
+      const newUser = await User.create({
+        name,
+        number: from,
+        timestamp: Date.now(),
+      });
+      io.emit("new_user", newUser);
+      const message = await Messages.create({
+        user: newUser._id,
+        messageID,
+        text: msg_body,
+        number: from,
+        timestamp: Date.now(),
+        unreadMsg: true,
+      });
+      if (message) {
+        newUser.timestamp = Date.now();
+        newUser.lastMessage = msg_body;
+        newUser.unreadMessages = newUser.unreadMessages + 1;
+        const updatedUser = await newUser.save();
+        io.emit("message_came", message);
+        res.status(201);
+        res.json(updatedUser);
+      } else {
+        res.status(400);
+        throw new Error("Invalid User data");
+      }
+    }
+  };
+  if (req.body) {
+    const { from, name, messageID, msg_body } = req.body;
+    firebaseSet(from, name, messageID, msg_body);
+  }
+});
+
+app.post("/api/chats", async (req, res) => {
+  const { number } = req.body;
+  console.log(number);
+  const messages = await Messages.find({ number: number });
   res.json(messages);
+});
+
+app.get("/api/users", async (req, res) => {
+  const users = await User.find();
+  res.json(users);
 });
 
 app.post("/webhook", async (req, res) => {
@@ -39,38 +114,53 @@ app.post("/webhook", async (req, res) => {
   // Check the Incoming webhook message
 
   const firebaseSet = async (from, name, messageID, msg_body, timestamp) => {
-    const user = await User.findOne({ from });
+    const user = await User.findOne({ number: from });
     if (user) {
+      console.log("User Found");
       const message = await Messages.create({
         user: user._id,
         messageID,
         text: msg_body,
         number: from,
         timestamp: Date.now(),
+        unreadMsg: true,
       });
       if (message) {
+        user.timestamp = Date.now();
+        user.lastMessage = msg_body;
+        user.unreadMessages = user.unreadMessages + 1;
+        const updatedUser = await user.save();
         io.emit("message_came", message);
         res.status(201);
+        res.json(updatedUser);
       } else {
         res.status(400);
         throw new Error("Invalid User data");
       }
     } else {
+      console.log("User Not Found");
       const newUser = await User.create({
         name,
         number: from,
         timestamp: Date.now(),
       });
+      io.emit("new_user", newUser);
       const message = await Messages.create({
         user: newUser._id,
         messageID,
         text: msg_body,
         number: from,
         timestamp: Date.now(),
+        unreadMsg: true,
       });
       if (message) {
+        newUser.timestamp = Date.now();
+        newUser.lastMessage = msg_body;
+        newUser.unreadMessages = newUser.unreadMessages + 1;
+        const updatedUser = await newUser.save();
         io.emit("message_came", message);
         res.status(201);
+        res.json(updatedUser);
       } else {
         res.status(400);
         throw new Error("Invalid User data");
@@ -157,8 +247,6 @@ app.post("/webhook", async (req, res) => {
 // }
 io.on("connection", async (socket) => {
   console.log(socket.id);
-  const users = await User.find();
-  io.emit("users", users);
   socket.on("disconnect", () => {
     console.log(socket.id, "Disconnected");
   });

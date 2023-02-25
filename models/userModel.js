@@ -6,11 +6,18 @@ const userSchema = mongoose.Schema(
       type: String,
     },
     number: {
-      type: String,
+      type: Number,
       required: true,
     },
     timestamp: {
       type: String,
+    },
+    lastMessage: {
+      type: String,
+    },
+    unreadMessages: {
+      type: Number,
+      default: 0,
     },
   },
   {

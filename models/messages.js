@@ -25,6 +25,9 @@ const messagesSchema = mongoose.Schema(
     timestamp: {
       type: String,
     },
+    unreadMsg: {
+      type: Boolean,
+    },
   },
   {
     timestamps: true,
