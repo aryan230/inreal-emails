@@ -13,11 +13,13 @@ import http from "http";
 import User from "./models/userModel.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 import Messages from "./models/messages.js";
+import messageRoutes from "./routes/messageRoutes.js";
+
 dotenv.config();
 connectDB();
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
+global.io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
@@ -95,6 +97,16 @@ app.post("/test/webhook", async (req, res) => {
   }
 });
 
+app.put("/api/update", async (req, res) => {
+  const { id } = req.body;
+  const message = await Messages.findOne({ messageID: id });
+  if (message) {
+    res.json(message);
+  } else {
+    throw new Error("Not Found");
+  }
+});
+
 app.post("/api/chats", async (req, res) => {
   const { number } = req.body;
   console.log(number);
@@ -169,17 +181,12 @@ app.post("/webhook", async (req, res) => {
   };
 
   const updateStatusFirebase = async (from, status, id) => {
-    let messageRef = db.collection("messages").doc(from);
-    let customerRef = db.collection("messages");
-    const doc = await messageRef.get();
-    let data = doc.data().data;
-    let dataIndex = data.findIndex((obj) => obj.messageID === id);
-
-    data[dataIndex].status = status;
-    console.log(data);
-    await customerRef.doc(from).update({
-      data: data,
-    });
+    const message = await Messages.findOne({ messageID: id });
+    if (message) {
+      message.status = status;
+      const updatedMessage = await message.save();
+      io.emit("status_change", updatedMessage);
+    }
   };
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
@@ -251,6 +258,8 @@ io.on("connection", async (socket) => {
     console.log(socket.id, "Disconnected");
   });
 });
+
+app.use("/api/messages", messageRoutes);
 
 app.get("/webhook", (req, res) => {
   /**
