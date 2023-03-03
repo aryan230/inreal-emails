@@ -5,6 +5,9 @@ const bulkSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    image: {
+      type: "String",
+    },
     data: [
       {
         name: {
@@ -12,6 +15,13 @@ const bulkSchema = mongoose.Schema(
         },
         number: {
           type: Number,
+        },
+      },
+    ],
+    messages: [
+      {
+        name: {
+          type: String,
         },
       },
     ],

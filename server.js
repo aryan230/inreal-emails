@@ -14,7 +14,7 @@ import User from "./models/userModel.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 import Messages from "./models/messages.js";
 import messageRoutes from "./routes/messageRoutes.js";
-
+import bulkRoutes from "./routes/bulkRoutes.js";
 dotenv.config();
 connectDB();
 const app = express();
@@ -111,6 +111,11 @@ app.post("/api/chats", async (req, res) => {
   const { number } = req.body;
   console.log(number);
   const messages = await Messages.find({ number: number });
+  res.json(messages);
+});
+
+app.get("/api/msgs", async (req, res) => {
+  const messages = await Messages.find({});
   res.json(messages);
 });
 
@@ -221,10 +226,20 @@ app.post("/webhook", async (req, res) => {
       } else if (
         req.body.entry[0].changes[0].value.messages[0].type === "interactive"
       ) {
-        let msg_body =
-          req.body.entry[0].changes[0].value.messages[0].interactive
-            .button_reply.title;
-        firebaseSet(from, name, messageID, msg_body, timestamp);
+        if (
+          req.body.entry[0].changes[0].value.messages[0].interactive.type ===
+          "button_reply"
+        ) {
+          let msg_body =
+            req.body.entry[0].changes[0].value.messages[0].interactive
+              .button_reply.title;
+          firebaseSet(from, name, messageID, msg_body, timestamp);
+        } else {
+          let msg_body =
+            req.body.entry[0].changes[0].value.messages[0].interactive
+              .list_reply.title;
+          firebaseSet(from, name, messageID, msg_body, timestamp);
+        }
       } else {
         let msg_body = "Something different";
         firebaseSet(from, name, messageID, msg_body, timestamp);
@@ -260,7 +275,7 @@ io.on("connection", async (socket) => {
 });
 
 app.use("/api/messages", messageRoutes);
-
+app.use("/api/bulk", bulkRoutes);
 app.get("/webhook", (req, res) => {
   /**
    * UPDATE YOUR VERIFY TOKEN

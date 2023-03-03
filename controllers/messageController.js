@@ -2,6 +2,7 @@ import Messages from "../models/messages.js";
 import asyncHandler from "express-async-handler";
 import axios from "axios";
 import User from "../models/userModel.js";
+
 const id = process.env.WHATSAPP_ID;
 const token = process.env.WHATSAPP_TOKEN;
 const version = "v15.0";
@@ -65,7 +66,7 @@ const sendSingleMessage = asyncHandler(async (req, res) => {
       },
       {
         headers: {
-          Authorization: `Bearer EAARBNj3J3kgBABEELqV5zfahD3yqZBwFj9XaEffOiZB6dPK5Adg5Ln9wIfAsie4ZBuVXZAnWG6ZBLwmmtUqX2SuStrTRey0KqvlRzGCmZAKUZCBREqsEprxoN4L3SJZBVlmFy36UoJ4YZAQJ0il5zJOAswWrrOBOn1BAwqUCkbb0NS3ZAfxDizikfN`,
+          Authorization: `Bearer EAARBNj3J3kgBAKiZCFY70VbIidjRYlix2WYLKLZCvie8NFHkk4GUVSbfs2JaPQYykCcrK7Py3Rcdioi8kg5fyZCZCVXcZBq0XatjterXcsFGfI03oE69MWvI0u6F2HzDZCIcoCPKpOBVWI8b3uZAE5UjGSAhUpHmExEdr5v0xULe98b60u4TrpsIl72GY8C07ZAyRLI3AkZBDFAZDZD`,
           "Content-Type": "application/json",
         },
       }
@@ -79,8 +80,60 @@ const sendSingleMessage = asyncHandler(async (req, res) => {
     }
   } catch (err) {
     res.status(400);
-    throw new Error("There was an error");
+    res.json(err);
   }
 });
 
-export { sendSingleMessage };
+const sendSingleMessageTemplate = asyncHandler(async (req, res) => {
+  const { message, number } = req.body;
+
+  try {
+    const response = await axios.post(
+      "https://graph.facebook.com/v15.0/103390155979999/messages",
+      // '{\n    "messaging_product": "whatsapp",\n    "to": "917045013337",\n    "type": "template",\n    "template": {\n        "name": "hello_world",\n        "language": {\n            "code": "en_US"\n        }\n    }\n}',
+      {
+        messaging_product: "whatsapp",
+        to: number,
+        type: "template",
+        template: {
+          name: "chatgpt1",
+          language: {
+            code: "en",
+          },
+          components: [
+            {
+              type: "header",
+              parameters: [
+                {
+                  type: "image",
+                  image: {
+                    link: "https://i.ibb.co/30g7hh9/Slide-16-9-1-1.png",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Bearer EAARBNj3J3kgBAKiZCFY70VbIidjRYlix2WYLKLZCvie8NFHkk4GUVSbfs2JaPQYykCcrK7Py3Rcdioi8kg5fyZCZCVXcZBq0XatjterXcsFGfI03oE69MWvI0u6F2HzDZCIcoCPKpOBVWI8b3uZAE5UjGSAhUpHmExEdr5v0xULe98b60u4TrpsIl72GY8C07ZAyRLI3AkZBDFAZDZD",
+        },
+      }
+    );
+    if (response.status === 200) {
+      res.status(200);
+      res.json(response.data);
+      const name = "Unknown";
+      const messageID = response.data.messages[0].id;
+      firebaseSet(number, name, messageID, message);
+    }
+  } catch (err) {
+    res.status(400);
+    res.json(err);
+  }
+});
+
+export { sendSingleMessage, sendSingleMessageTemplate };
